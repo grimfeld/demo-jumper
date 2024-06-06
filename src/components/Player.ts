@@ -29,6 +29,7 @@ export class Player {
     this.player.setCollideWorldBounds(true)
     this.player.body.gravity.y = Phaser.Math.Between(500, 800)
     this.player.setBounce(0.2)
+    this.player.setDepth(5)
 
     this.jumpButton = this.scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
     this.cursors = this.scene.input.keyboard?.createCursorKeys()
