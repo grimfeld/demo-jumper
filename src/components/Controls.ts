@@ -19,7 +19,7 @@ export class Controls {
       .setScrollFactor(0)
       .setDepth(10)
       .setAlpha(0.5)
-    this.leftControl.rotation = Math.PI
+    this.leftControl.rotation = this.scene.config.assets.controls.left.rotation
 
     this.rightControl = this.scene.add
       .image(this.scene.scale.width - 100, this.scene.scale.height - 150, 'control')
@@ -28,6 +28,7 @@ export class Controls {
       .setScrollFactor(0)
       .setDepth(10)
       .setAlpha(0.5)
+    this.rightControl.rotation = this.scene.config.assets.controls.right.rotation
 
     // Handle left button touch input
     this.leftControl.on('pointerdown', () => {
@@ -58,11 +59,11 @@ export class Controls {
 
   update() {
     if (this.moveLeft) {
-      this.scene.player?.player?.setVelocityX(-150)
+      this.scene.player?.moveLeft()
     } else if (this.moveRight) {
-      this.scene.player?.player?.setVelocityX(150)
+      this.scene.player?.moveRight()
     } else {
-      this.scene.player?.player?.setVelocityX(0)
+      this.scene.player?.setIdle()
     }
   }
 }

@@ -1,15 +1,17 @@
 import { JumperScene } from './Scene'
 
-const HEART_COOLDOWN = 5000
-const COIN_COOLDOWN = 5000
-const HEART_PROBABILITY = 10
-const COIN_PROBABILITY = 10
-const HEART_SPAWN_TRIAL_INTERVAL = 100
-const COIN_SPAWN_TRIAL_INTERVAL = 100
-
-export class HeartItem extends Phaser.Physics.Arcade.Sprite {
-  constructor(scene: JumperScene, x: number, y: number) {
-    super(scene, x, y, 'heart')
+export class BaseItem extends Phaser.Physics.Arcade.Sprite {
+  constructor(
+    scene: JumperScene,
+    x: number,
+    y: number,
+    name: string,
+    width: number,
+    height: number,
+    effect: string,
+    data: any
+  ) {
+    super(scene, x, y, name)
     scene.add.existing(this)
     scene.physics.add.existing(this)
 
@@ -23,39 +25,25 @@ export class HeartItem extends Phaser.Physics.Arcade.Sprite {
     // @ts-ignore
     this.body.checkCollision.up = false
     this.setOrigin(0.5, 0.5)
-    this.setSize(30, 30).setOffset(0, 0)
-    this.setDisplaySize(30, 30)
+    this.setSize(width, height).setOffset(0, 0)
+    this.setDisplaySize(30, height / (width / 30))
 
     if (!scene.player?.player) return
     scene.physics.add.collider(this, scene.player.player, () => {
-      scene.health?.increaseHealth()
-      this.destroy()
-    })
-  }
-}
-
-export class CoinItem extends Phaser.Physics.Arcade.Sprite {
-  constructor(scene: JumperScene, x: number, y: number) {
-    super(scene, x, y, 'coin')
-    scene.add.existing(this)
-    scene.physics.add.existing(this)
-
-    this.setImmovable(true)
-    // @ts-ignore
-    this.body.checkCollision.down = false
-    // @ts-ignore
-    this.body.checkCollision.left = false
-    // @ts-ignore
-    this.body.checkCollision.right = false
-    // @ts-ignore
-    this.body.checkCollision.up = false
-    this.setOrigin(0.5, 0.5)
-    this.setSize(50, 50).setOffset(0, 0)
-    this.setDisplaySize(30, 30)
-
-    if (!scene.player?.player) return
-    scene.physics.add.collider(this, scene.player.player, () => {
-      scene.score?.incrementScore(10)
+      switch (effect) {
+        case 'increaseHealth':
+          scene.health?.increaseHealth(data)
+          break
+        case 'decreaseHealth':
+          scene.health?.decreaseHealth(data)
+          break
+        case 'increaseScore':
+          scene.score?.incrementScore(data)
+          break
+        case 'decreaseScore':
+          scene.score?.decrementScore(data)
+          break
+      }
       this.destroy()
     })
   }
@@ -122,37 +110,30 @@ export class ItemsManager {
     this.scene = scene
   }
 
-  private handleHeartSpawn() {
-    const position = this.scene?.grid?.getEmptySpot(1, 1, this.scene.cameras.main.scrollY)
-    if (!position) return
-
-    new HeartItem(this.scene, position.x, position.y)
-  }
-
-  private handleCoinSpawn() {
-    const position = this.scene?.grid?.getEmptySpot(1, 1, this.scene.cameras.main.scrollY)
-    if (!position) return
-
-    new CoinItem(this.scene, position.x, position.y)
-  }
-
   create() {
-    const heartSpawner = new ItemSpawner(
-      this.scene,
-      HEART_SPAWN_TRIAL_INTERVAL,
-      HEART_COOLDOWN,
-      HEART_PROBABILITY,
-      this.handleHeartSpawn
-    )
-    heartSpawner.createTimer()
-    const coinSpawner = new ItemSpawner(
-      this.scene,
-      COIN_SPAWN_TRIAL_INTERVAL,
-      COIN_COOLDOWN,
-      COIN_PROBABILITY,
-      this.handleCoinSpawn
-    )
-    coinSpawner.createTimer()
+    this.scene.config.items.forEach((item) => {
+      const spawner = new ItemSpawner(
+        this.scene,
+        item.interval,
+        item.cooldown,
+        item.probability,
+        () => {
+          const position = this.scene.grid?.getEmptySpot(1, 1, this.scene.cameras.main.scrollY)
+          if (!position) return
+          new BaseItem(
+            this.scene,
+            position.x,
+            position.y,
+            item.id,
+            item.assetWidth,
+            item.assetHeight,
+            item.effect,
+            item.data
+          )
+        }
+      )
+      spawner.createTimer()
+    })
   }
 
   update() {

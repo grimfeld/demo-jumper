@@ -1,6 +1,66 @@
-import { JumperScene } from './Scene'
+import { JumperPlatform, JumperScene } from './Scene'
 
 const PLATFORMS_DISPLAYED = 10
+
+export class BasePlatform extends Phaser.Physics.Arcade.Sprite {
+  scene: JumperScene
+  constructor(scene: JumperScene, x: number, y: number, name: string, config: JumperPlatform) {
+    super(scene, x, y, name)
+    this.scene = scene
+    scene.add.existing(this)
+    scene.physics.add.existing(this)
+
+    this.setImmovable(true)
+    // @ts-ignore
+    this.body.checkCollision.down = false
+    // @ts-ignore
+    this.body.checkCollision.left = false
+    // @ts-ignore
+    this.body.checkCollision.right = false
+
+    this.setOrigin(0.5, 0.5)
+    this.setSize(config.assetWidth, config.assetHeight).setOffset(config.xOffset, config.yOffset)
+    this.setDisplaySize(125, config.assetHeight / (config.assetWidth / 125))
+
+    if (!this.scene.player?.player) return
+    this.scene.physics.add.collider(this, this.scene.player?.player, () => {
+      if (
+        this.body?.y &&
+        this.scene.player?.player?.body?.touching.down &&
+        this.scene.player?.player.body.y + this.scene.player?.player?.height >= this.body.y
+      ) {
+        // Handle bounce
+        const max = config.bounciness + 100
+        const min = config.bounciness - 100
+        this.scene.player?.player?.setVelocityY(Phaser.Math.Between(-min, -max))
+        // Handle effect
+        switch (config.effect) {
+          case 'increaseHealth':
+            this.scene.health?.increaseHealth(config.data)
+            break
+          case 'decreaseHealth':
+            this.scene.health?.decreaseHealth(config.data)
+            break
+          case 'increaseScore':
+            this.scene.score?.incrementScore(config.data)
+            break
+          case 'decreaseScore':
+            this.scene.score?.decrementScore(config.data)
+            break
+        }
+      }
+    })
+
+    // Add an update event to the scene that checks the position of this platform
+    this.scene.events.on('update', this.checkOutOfBounds, this)
+  }
+
+  checkOutOfBounds() {
+    if (this.y > this.scene?.cameras.main.scrollY + this.scene?.scale.height) {
+      this.destroy()
+    }
+  }
+}
 
 export class DefaultPlatform extends Phaser.Physics.Arcade.Sprite {
   scene: JumperScene
@@ -20,8 +80,18 @@ export class DefaultPlatform extends Phaser.Physics.Arcade.Sprite {
     this.body.checkCollision.right = false
 
     this.setOrigin(0.5, 0.5)
-    this.setSize(2304, 850).setOffset(0, 200)
-    this.setDisplaySize(125, 45)
+    this.setSize(
+      this.scene.config.assets.platform.assetWidth,
+      this.scene.config.assets.platform.assetHeight
+    ).setOffset(
+      this.scene.config.assets.platform.xOffset,
+      this.scene.config.assets.platform.yOffset
+    )
+    this.setDisplaySize(
+      125,
+      this.scene.config.assets.platform.assetHeight /
+        (this.scene.config.assets.platform.assetWidth / 125)
+    )
 
     if (!this.scene.player?.player) return
     this.scene.physics.add.collider(this, this.scene.player?.player, () => {
@@ -205,18 +275,31 @@ export class PlatformManager {
 
   public create(): void {
     this.initialPlatform()
-    const boosterPlatformSpawner = new PlatformSpawner(this.scene, 100, 5000, 100, () => {
-      const position = this.scene.grid?.getEmptySpot(6, 3, this.scene.cameras.main.scrollY)
-      if (!position) return
-      new BoosterPlatform(this.scene, position.x, position.y + 100)
+
+    this.scene.config.platforms.forEach((platform) => {
+      const spawner = new PlatformSpawner(
+        this.scene,
+        platform.interval,
+        platform.cooldown,
+        platform.probability,
+        () => {
+          const position = this.scene.grid?.getEmptySpot(
+            platform.requiredRows,
+            platform.requiredColumns,
+            this.scene.cameras.main.scrollY
+          )
+          if (!position) return
+          new BasePlatform(
+            this.scene,
+            position.x,
+            position.y + platform.verticalOffset,
+            platform.id,
+            platform
+          )
+        }
+      )
+      spawner.createTimer()
     })
-    boosterPlatformSpawner.createTimer()
-    const dangerPlatformSpawner = new PlatformSpawner(this.scene, 100, 5000, 100, () => {
-      const position = this.scene.grid?.getEmptySpot(4, 3, this.scene.cameras.main.scrollY)
-      if (!position) return
-      new DangerPlatform(this.scene, position.x, position.y - 50)
-    })
-    dangerPlatformSpawner.createTimer()
   }
 
   private addPlatform(x: number, y: number): Phaser.Physics.Arcade.Sprite | null {

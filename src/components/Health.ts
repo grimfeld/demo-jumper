@@ -16,10 +16,16 @@ export class Health {
         color: '#fff'
       })
       .setScrollFactor(0)
+      .setDepth(50)
     const heartIcon = this.scene.add
-      .image(15, 15, 'heart')
-      .setDisplaySize(30, 30)
+      .image(15, 15, 'health')
+      .setDisplaySize(
+        30,
+        this.scene.config.assets.health.assetHeight /
+          (this.scene.config.assets.health.assetWidth / 30)
+      )
       .setScrollFactor(0)
+      .setDepth(50)
     this.healthContainer.add([heartIcon, this.text])
   }
 
@@ -31,11 +37,11 @@ export class Health {
     this.text.setText(`${this.health}`)
   }
 
-  decreaseHealth() {
+  decreaseHealth(amount = 1) {
     if (this.cooldown) return
-    if (this.health > 1) {
+    if (this.health > amount) {
       this.cooldown = true
-      this.health--
+      this.health -= amount
       this.scene.time.addEvent({
         delay: 5000,
         callback: () => {
@@ -48,8 +54,8 @@ export class Health {
     this.updateHealth()
   }
 
-  increaseHealth() {
-    this.health++
+  increaseHealth(amount: number = 1) {
+    this.health += amount
     this.updateHealth()
   }
 

@@ -20,12 +20,19 @@ export class Player {
     this.player = this.scene.physics.add.sprite(
       this.scene.scale.width / 2,
       this.scene.scale.height - 180,
-      'knight'
+      'player-idle'
     )
     this.player.setOrigin(0.5, 0.5)
     if (!this.player.body) return
-    this.player.body.setSize(1097, 1562)
-    this.player.setDisplaySize(50, 75)
+    this.player.body.setSize(
+      this.scene.config.assets.player.textures.idle.assetWidth,
+      this.scene.config.assets.player.textures.idle.assetHeight
+    )
+    this.player.setDisplaySize(
+      50,
+      this.scene.config.assets.player.textures.idle.assetHeight /
+        (this.scene.config.assets.player.textures.idle.assetWidth / 50)
+    )
     this.player.setCollideWorldBounds(true)
     this.player.body.gravity.y = Phaser.Math.Between(500, 800)
     this.player.setBounce(0.2)
@@ -57,32 +64,39 @@ export class Player {
 
   public handleMovement(): void {
     if (!this.player?.body || !this.cursors || !this.jumpButton) return
-    const standing = this.player.body.touching.down || this.player.body.blocked.down
-
-    if (this.jumpButton.isDown && standing) {
-      this.player.setVelocityY(-500)
-    } else if (this.cursors.left.isDown) {
-      this.player.setVelocityX(-150)
-    } else if (this.cursors.right.isDown) {
-      this.player.setVelocityX(150)
-    } else {
-      // this.player.setVelocityX(0);
-    }
 
     let t1 = Math.abs(this.player.y)
     this.yChange = Math.max(Math.abs(t1 + this.yOrig) + 2000)
   }
 
   public moveLeft(): void {
-    console.log('Moving left')
     if (!this.player || !this.player.body) return
-    console.log('Moving left 2')
     this.player.setVelocityX(-150)
+    this.player.setTexture('player-left')
+    this.player.body.setSize(
+      this.scene.config.assets.player.textures.left.assetWidth,
+      this.scene.config.assets.player.textures.left.assetHeight
+    )
   }
 
   public moveRight(): void {
     if (!this.player || !this.player.body) return
     this.player.setVelocityX(150)
+    this.player.setTexture('player-right')
+    this.player.body.setSize(
+      this.scene.config.assets.player.textures.right.assetWidth,
+      this.scene.config.assets.player.textures.right.assetHeight
+    )
+  }
+
+  public setIdle(): void {
+    if (!this.player || !this.player.body) return
+    this.player.setVelocityX(0)
+    this.player.setTexture('player-idle')
+    this.player.body.setSize(
+      this.scene.config.assets.player.textures.idle.assetWidth,
+      this.scene.config.assets.player.textures.idle.assetHeight
+    )
   }
 
   public render(): void {
