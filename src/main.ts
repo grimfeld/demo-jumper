@@ -2,95 +2,124 @@ import './style.css'
 import Phaser from 'phaser'
 import { JumperScene, JumperSkinConfig } from './components/Scene.ts'
 
-// const defaultConfig: JumperSkinConfig = {
-//   skin: 'default',
-//   items: [
-//     {
-//       id: 'health',
-//       image: 'jp-heart.png',
-//       effect: 'increaseHealth',
-//       data: 1,
-//       interval: 100,
-//       cooldown: 5000,
-//       probability: 10,
-//       width: 30,
-//       height: 30
-//     },
-//     {
-//       id: 'coin',
-//       image: 'jp-coin.png',
-//       effect: 'incrementScore',
-//       data: 10,
-//       interval: 100,
-//       cooldown: 5000,
-//       probability: 10,
-//       width: 30,
-//       height: 30
-//     }
-//   ],
-//   platforms: [
-//     {
-//       id: 'booster-platform',
-//       image: 'jp-booster-platform.png',
-//       interval: 100,
-//       cooldown: 5000,
-//       probability: 100,
-//       requiredRows: 6,
-//       requiredColumns: 3,
-//       assetWidth: 2688,
-//       assetHeight: 1536,
-//       xOffset: 0,
-//       yOffset: 500,
-//       verticalOffset: 100,
-//       bounciness: 1100,
-//       effect: ''
-//     },
-//     {
-//       id: 'danger-platform',
-//       image: 'jp-danger-platform.png',
-//       interval: 100,
-//       cooldown: 5000,
-//       probability: 100,
-//       requiredRows: 4,
-//       requiredColumns: 3,
-//       assetWidth: 2688,
-//       assetHeight: 1536,
-//       xOffset: 0,
-//       yOffset: 500,
-//       verticalOffset: -50,
-//       bounciness: 450,
-//       effect: ''
-//     }
-//   ],
-//   assets: {
-//     platform: {
-//       image: 'jp-platform-3.png',
-//       assetWidth: 2304,
-//       assetHeight: 850,
-//       xOffset: 0,
-//       yOffset: 200
-//     },
-//     player: {
-//       textures: {
-//         idle: {
-//           image: 'jp-knight.png',
-//           assetWidth: 1097,
-//           assetHeight: 1562
-//         },
-//         left: {
-//           image: 'jp-knight.png',
-//           assetWidth: 1097,
-//           assetHeight: 1562
-//         },
-//         right: {
-//           image: 'jp-knight.png',
-//           assetWidth: 1097,
-//           assetHeight: 1562
-//         }
-//       }
-//     }
-//   }
-// }
+const defaultConfig: JumperSkinConfig = {
+  skin: 'default',
+  items: [
+    {
+      id: 'health',
+      image: 'jp-heart.png',
+      effect: 'increaseHealth',
+      data: 1,
+      interval: 100,
+      cooldown: 5000,
+      probability: 10,
+      assetWidth: 2304,
+      assetHeight: 1792
+    },
+    {
+      id: 'coin',
+      image: 'jp-coin.png',
+      effect: 'incrementScore',
+      data: 10,
+      interval: 100,
+      cooldown: 5000,
+      probability: 10,
+      assetWidth: 829,
+      assetHeight: 814
+    }
+  ],
+  platforms: [
+    {
+      id: 'booster-platform',
+      image: 'jp-booster-platform.png',
+      interval: 100,
+      cooldown: 5000,
+      probability: 100,
+      requiredRows: 6,
+      requiredColumns: 3,
+      assetWidth: 2688,
+      assetHeight: 1536,
+      xOffset: 0,
+      yOffset: 500,
+      verticalOffset: 100,
+      bounciness: 1100,
+      effect: ''
+    },
+    {
+      id: 'danger-platform',
+      image: 'jp-danger-platform.png',
+      interval: 100,
+      cooldown: 5000,
+      probability: 100,
+      requiredRows: 4,
+      requiredColumns: 3,
+      assetWidth: 2688,
+      assetHeight: 1536,
+      xOffset: 0,
+      yOffset: 500,
+      verticalOffset: -50,
+      bounciness: 450,
+      effect: ''
+    }
+  ],
+  assets: {
+    background: {
+      image: 'jp-bg.png',
+      assetWidth: 350,
+      assetHeight: 550
+    },
+    platform: {
+      image: 'jp-platform-3.png',
+      assetWidth: 2304,
+      assetHeight: 850,
+      xOffset: 0,
+      yOffset: 200
+    },
+    player: {
+      textures: {
+        idle: {
+          image: 'jp-knight.png',
+          assetWidth: 1097,
+          assetHeight: 1562
+        },
+        left: {
+          image: 'jp-knight.png',
+          assetWidth: 1097,
+          assetHeight: 1562
+        },
+        right: {
+          image: 'jp-knight.png',
+          assetWidth: 1097,
+          assetHeight: 1562
+        }
+      }
+    },
+    health: {
+      image: 'jp-heart.png',
+      assetWidth: 2304,
+      assetHeight: 1792
+    },
+    score: {
+      image: 'jp-coin.png',
+      assetWidth: 829,
+      assetHeight: 814
+    },
+    controls: {
+      left: {
+        image: 'jp-control-button.png',
+        assetWidth: 602,
+        assetHeight: 605,
+        rotation: Math.PI
+      },
+      right: {
+        image: 'jp-control-button.png',
+        assetWidth: 602,
+        assetHeight: 605,
+        rotation: 0
+      }
+    }
+  }
+}
 
 const configJO: JumperSkinConfig = {
   skin: 'jeux-olympiques-2024_666808984298ac193c8bd158',
@@ -162,7 +191,9 @@ const configJO: JumperSkinConfig = {
     background: {
       image: 'jqu124x.png',
       assetWidth: 522,
-      assetHeight: 5490
+      assetHeight: 5490,
+      isLooping: true,
+      isScrolling: true
     },
     platform: {
       image: '6bs2k0j.png',
@@ -217,7 +248,7 @@ const config = {
   height: window.innerHeight,
   parent: 'game-container',
   scene: baseScene,
-  transparent: true,
+  transparent: false,
   physics: {
     default: 'arcade',
     arcade: {

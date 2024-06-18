@@ -47,6 +47,8 @@ export interface JumperSkinConfig {
       image: string
       assetWidth: number
       assetHeight: number
+      isLooping?: boolean
+      isScrolling?: boolean
     }
     platform: {
       image: string
@@ -236,5 +238,8 @@ export class JumperScene extends Scene {
 
   public kill() {
     this.scene.stop()
+    setTimeout(() => {
+      this.scene.restart()
+    }, 1000)
   }
 }
